@@ -154,15 +154,22 @@ class GPTModel(torch.nn.Module):
         x += self.wpe(position_ids)
         x = self.drop_embd(x)
 
-        causal_attention_mask = torch.triu(
-            torch.ones(
-                (sequence_length, sequence_length),
-                dtype=x.dtype,
-                device=x.device,
-            ),
-            diagonal=1,
-        ).unsqueeze(0).unsqueeze(0)
-        causal_attention_mask *= torch.finfo(causal_attention_mask.dtype).min
+        mask_shape = (
+            batch_size,
+            GPTConfig.heads,
+            sequence_length,
+            sequence_length,
+        )
+        s_in = torch.arange(sequence_length, device=x.device, dtype=torch.float32)[
+            None, :, None
+        ].broadcast_to(mask_shape)
+        s_out = torch.arange(sequence_length, device=x.device, dtype=torch.float32)[
+            None, None, :
+        ].broadcast_to(mask_shape)
+        one = torch.tensor(1, dtype=torch.float32)
+        zero = torch.tensor(0, dtype=torch.float32)
+        causal_attention_mask = torch.minimum((torch.maximum(s_out - s_in, zero)), one)
+        causal_attention_mask = causal_attention_mask * torch.finfo(causal_attention_mask.dtype).min
 
         for l in self.decoder:
             x = l(x, mask=causal_attention_mask)

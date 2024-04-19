@@ -35,7 +35,7 @@ def main(model_config, config, cs_config):
     state_dict = cstorch.load(config.checkpoint_path)
 
     if not backend.is_cpu:
-        cstorch.amp.use_bfloat16(True)
+        cstorch.amp.set_half_dtype("bfloat16")
 
     with backend.device:
         model = GPTModel(model_config)
