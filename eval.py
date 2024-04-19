@@ -19,7 +19,7 @@ from pathlib import Path
 import torch
 from tqdm import tqdm
 
-import cerebras_pytorch as cstorch
+import cerebras.pytorch as cstorch
 from configuration import parse_args
 from data import get_dataloader
 from model import GPTModel
@@ -35,7 +35,7 @@ def main(model_config, config, cs_config):
     state_dict = cstorch.load(config.checkpoint_path)
 
     if not backend.is_cpu:
-        cstorch.amp.set_half_dtype("bfloat16")
+        cstorch.amp.set_half_dtype('bfloat16')
 
     with backend.device:
         model = GPTModel(model_config)

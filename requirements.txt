@@ -4,4 +4,4 @@ transformers
 tokenizers
 tiktoken
 tqdm
-cerebras-pytorch==2.1.1
+cerebras-pytorch==2.2.0
